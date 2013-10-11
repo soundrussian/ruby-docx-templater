@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'nokogiri'
 
 module DocxTemplater
@@ -11,12 +12,13 @@ module DocxTemplater
     end
 
     def render(document)
+      document = document.force_encoding('UTF-8')
       data.each do |key, value|
         if value.class == Array
           document = enter_multiple_values(document, key)
-          document.gsub!("#SUM:#{key.to_s.upcase}#", value.count.to_s)
+          document.gsub!("#SUM:#{key.to_s.upcase}#".encode('UTF-8'), value.count.to_s)
         else
-          document.gsub!("$#{key.to_s.upcase}$", safe(value))
+          document.gsub!("$#{key.to_s.upcase}$".encode('UTF-8'), safe(value))
         end
       end
       document
@@ -65,7 +67,7 @@ module DocxTemplater
             DocxTemplater::log("   matches: #{matches.inspect}")
             matches.map(&:first).each do |each_key|
               DocxTemplater::log("      each_key: #{each_key}")
-              innards.gsub!("$EACH:#{each_key}$", safe(each_data[each_key.downcase.to_sym]))
+              innards.gsub!("$EACH:#{each_key}$", safe(each_data[each_key.downcase]))
             end
           end
           # change all the internals of the new node, even if we did not template
